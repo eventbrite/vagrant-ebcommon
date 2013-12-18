@@ -118,8 +118,11 @@ module VagrantPlugins
         end
 
         def call(env)
-          setup_ssh_keys()
-          generate_git_commiter_facts()
+          provision_enabled = env.has_key?(:provision_enabled) ? env[:provision_enabled] : true
+          if provision_enabled
+            setup_ssh_keys()
+            generate_git_commiter_facts()
+          end
           @app.call(env)
         end
 
