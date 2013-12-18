@@ -1,24 +1,34 @@
-# Vagrant::Ebcommon
+# vagrant-ebcommon
 
-TODO: Write a gem description
+A [Vagrant](http://www.vagrantup.com/) plugin to handle various Eventbrite workflows.
+
+Using this plugin we can:
+
+    - take actions before we bring up the virtualenv
+    - take actions before we provision the virtualenv
+    - add custom commands like "start-selenium" to distribute commands to our
+      dev team that run on the host machine
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-    gem 'vagrant-ebcommon'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install vagrant-ebcommon
+``` bash
+vagrant plugin install vagrant-ebcommon
+```
 
 ## Usage
 
-TODO: Write usage instructions here
+This plugin exposes the following additional vagrant commands:
+
+* clear-requirements-cache: will remove the pip_requirements_cache file within the VM
+* start-selenium: will ensure selenium is started on the host machine
+* stop-selenium: will stop selenium on the host machine
+
+## Development
+
+``` bash
+$ bundle
+$ bundle exec vagrant <any vagrant option or command defined by the plugin>
+```
 
 ## Contributing
 
