@@ -5,6 +5,7 @@ module VagrantPlugins
         def initialize(app, env)
           @app = app
           @env = env
+          @puppet_fact_generator = @env[:global_config].puppet_fact_generator
 
           provisioner = @env[:global_config].vm.provisioners[0]
           @puppet_config = provisioner ? provisioner.config: nil
@@ -14,7 +15,7 @@ module VagrantPlugins
         # Some of our requirements contain references to private eventbrite
         # github repos. We'll fail to clone these unless we've added our
         # ssh-keys so their available to vagrant.
-        def setup_ssh_keys()
+        def setup_ssh_keys
           @env[:ui].info 'Ensuring ssh-keys have been added via `ssh-add`...'
           current_keys = `ssh-add -l`
           if current_keys.include? 'no identities'
@@ -36,7 +37,7 @@ module VagrantPlugins
         #
         # :Returns:
         #   - dict of github creds
-        def fetch_git_commiter_details_from_file()
+        def fetch_git_commiter_details_from_file
           creds = {}
           contents = ""
           if File.exists?(@vagrant_git_commiter_details)
@@ -68,7 +69,7 @@ module VagrantPlugins
         # When a user is setting up a new vagrant, prompt them for their full
         # name and email. We'll set these within vagrant so we avoid people
         # accidently commiting as the "vagrant" user.
-        def generate_git_commiter_facts(facts)
+        def generate_git_commiter_facts()
           existing_details = fetch_git_commiter_details_from_file()
           # don't set the git configs if the user opted out
           if existing_details.has_key? 'optout'
@@ -109,24 +110,16 @@ module VagrantPlugins
           # FACTER_github_username='Brian O'Niell'. We use this special
           # escaping to concat an escaped single quote with the rest of the
           # string, outputting: FACTER_github_username='Brian O'\''Niell'
-          facts['github_full_name'] = full_name.gsub("'", "'\\\\''")
-          facts['github_email'] = email
+          @puppet_fact_generator.add_fact(
+            'github_full_name',
+            full_name.gsub("'", "'\\\\''")
+          )
+          @puppet_fact_generator.add_fact('github_email', email)
         end
-
-        # generate custom facts and add them to our puppet_config if available
-        def generate_custom_facts()
-          if @puppet_config
-            facts = {}
-            generate_git_commiter_facts(facts)
-            facts.each_pair { |k, v| @env[:ui].success "Creating fact #{k} => #{v}" }
-            @puppet_config.facter = @puppet_config.facter.merge(facts)
-          end
-        end
-
 
         def call(env)
           setup_ssh_keys()
-          generate_custom_facts()
+          generate_git_commiter_facts()
           @app.call(env)
         end
 

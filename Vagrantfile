@@ -2,6 +2,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+Vagrant.require_plugin 'vagrant-puppet-fact-generator'
 Vagrant.require_plugin 'vagrant-ebcommon'
 
 Vagrant.configure('2') do |config|
