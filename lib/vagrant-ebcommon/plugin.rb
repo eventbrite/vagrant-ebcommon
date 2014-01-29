@@ -4,7 +4,11 @@ rescue LoadError
   abort 'vagrant-ebcommon must be loaded in a Vagrant environment.'
 end
 
-Vagrant.require_plugin 'vagrant-puppet-fact-generator'
+begin
+  require 'vagrant-puppet-fact-generator'
+rescue LoadError
+  abort 'vagrant-ebcommon depends on the `vagrant-puppet-fact-generator` plugin.'
+end
 
 module VagrantPlugins
   module Ebcommon
