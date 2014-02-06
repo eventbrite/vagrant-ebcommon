@@ -1,0 +1,5 @@
+en:
+    vagrant:
+        errors:
+            vpn_required: |-
+                VPN is required when provisioning! Please enable VPN or run with "FORCE_PROVISION=true".

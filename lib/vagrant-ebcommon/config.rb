@@ -1,20 +1,31 @@
 module VagrantPlugins
   module Ebcommon
     class Config < Vagrant.plugin(2, :config)
-      # include any attributes we need
-      # ie:
-      # attr_accessor :some_val
+      attr_accessor :vpn_urls
 
       def initialize
-        # default any values we're collecting to UNSET_VALUE
-        # ie:
-        # @some_val = UNSET_VALUE
+        @vpn_urls = UNSET_VALUE
       end
 
       def finalize!
-        # finalize any values we need (set defaults)
-        # ie:
-        # @some_val = 'default' if @some_val == UNSET_VALUE
+        @vpn_urls = nil if @vpn_urls == UNSET_VALUE
+      end
+
+      def validate(machine)
+        errors = []
+        if @vpn_urls
+          if not @vpn_urls.kind_of?(Array)
+            errors << '`vpn_urls` must be a list of urls to test vpn connection'
+          else
+            @vpn_urls.each { |url|
+              uri = URI(url)
+              if not (uri.host and uri.port)
+                errors << "`vpn_urls` must be a list of urls: '#{url}' is not valid."
+              end
+            }
+          end
+        end
+        return { 'ebcommon' => errors }
       end
 
     end

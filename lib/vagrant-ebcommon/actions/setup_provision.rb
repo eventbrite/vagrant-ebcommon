@@ -1,3 +1,7 @@
+require 'timeout'
+require 'socket'
+require_relative '../errors'
+
 module VagrantPlugins
   module Ebcommon
     class Action
@@ -5,6 +9,7 @@ module VagrantPlugins
         def initialize(app, env)
           @app = app
           @env = env
+          @ebcommon = env[:global_config].ebcommon
           @puppet_fact_generator = @env[:global_config].puppet_fact_generator
 
           provisioner = @env[:global_config].vm.provisioners[0]
@@ -27,6 +32,24 @@ module VagrantPlugins
             end
           else
             @env[:ui].info '...ssh-keys detected, skipping `ssh-add`'
+          end
+        end
+
+        # In order to provision vagrant, we require you to be in the office or
+        # connected to VPN. There are several packages that are hosted
+        # internally and everything will fail miserably if you're not on our
+        # network.
+        def ensure_vpn
+          if not ENV['FORCE_PROVISION'] and @ebcommon.vpn_urls
+            vpn_valid = false
+            @ebcommon.vpn_urls.each { |url|
+              vpn_valid = ping url
+              break if vpn_valid
+            }
+            if not vpn_valid
+              raise Ebcommon::Errors::VPNRequired.new
+            end
+            @env[:ui].success 'VPN connection verified, continuing provision.'
           end
         end
 
@@ -120,11 +143,27 @@ module VagrantPlugins
         def call(env)
           provision_enabled = env.has_key?(:provision_enabled) ? env[:provision_enabled] : true
           if provision_enabled
+            ensure_vpn()
             setup_ssh_keys()
             generate_git_commiter_facts()
           end
           @app.call(env)
         end
+
+        private
+
+          def ping(url)
+            uri = URI(url)
+            begin
+              timeout(1) do
+                s = TCPSocket.new(uri.host, uri.port)
+                s.close
+              end
+            rescue Timeout::Error, SocketError
+              return false
+            end
+            return true
+          end
 
       end
     end
