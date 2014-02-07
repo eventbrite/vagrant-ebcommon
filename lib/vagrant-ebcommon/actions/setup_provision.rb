@@ -14,7 +14,9 @@ module VagrantPlugins
 
           provisioner = @env[:global_config].vm.provisioners[0]
           @puppet_config = provisioner ? provisioner.config: nil
-          @vagrant_git_commiter_details = '.VAGRANT_GIT_COMMITER_DETAILS'
+          @vagrant_git_commiter_details = @env[:machine].env.local_data_path.join(
+            'git_commit_details'
+          )
         end
 
         # Some of our requirements contain references to private eventbrite
