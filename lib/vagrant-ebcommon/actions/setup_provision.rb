@@ -108,22 +108,14 @@ module VagrantPlugins
             full_name = nil
             email = nil
           else
-            set_creds = @env[:ui].ask 'Do you ever plan on committing from within your VM?'\
-              ' [y/n]: '
-            if set_creds == 'y'
-              @env[:ui].warn \
-                "You'll be prompted to enter your full name and eventbrite email.\n"\
-                "We'll set these for you within your vagrant's .gitconfig.\n"\
-                "This will avoid accidentally committing code as 'vagrant'.\n"\
-                "If you ever want to reset these, remove\n"\
-                "#{@vagrant_git_commiter_details} from your vagrant directory.\n"
-              full_name = @env[:ui].ask 'Enter your full name: '
-              email = @env[:ui].ask 'Enter your eventbrite email: '
-            else
-              @env[:ui].warn 'Opting out of setting github creds.'
-              full_name = ''
-              email = ''
-            end
+            @env[:ui].warn \
+              "You'll be prompted to enter your full name and eventbrite email.\n"\
+              "We'll set these for you within your vagrant's .gitconfig.\n"\
+              "This will avoid accidentally committing code as 'vagrant'.\n"\
+              "If you ever want to reset these, remove\n"\
+              "#{@vagrant_git_commiter_details} from your vagrant directory.\n"
+            full_name = @env[:ui].ask 'Enter your full name: '
+            email = @env[:ui].ask 'Enter your eventbrite email: '
             write_git_commiter_details(full_name, email)
           end
           if not full_name.empty? or not email.empty?
