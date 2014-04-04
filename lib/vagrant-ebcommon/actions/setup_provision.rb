@@ -9,10 +9,10 @@ module VagrantPlugins
         def initialize(app, env)
           @app = app
           @env = env
-          @ebcommon = env[:global_config].ebcommon
-          @puppet_fact_generator = @env[:global_config].puppet_fact_generator
+          @ebcommon = env[:machine].config.ebcommon
+          @puppet_fact_generator = @env[:machine].config.puppet_fact_generator
 
-          provisioner = @env[:global_config].vm.provisioners[0]
+          provisioner = @env[:machine].config.vm.provisioners[0]
           @puppet_config = provisioner ? provisioner.config: nil
           @vagrant_git_commiter_details = @env[:machine].env.local_data_path.join(
             'git_commit_details'
