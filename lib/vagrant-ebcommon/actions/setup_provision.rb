@@ -1,3 +1,4 @@
+require 'fileutils'
 require 'timeout'
 require 'socket'
 require_relative '../errors'
@@ -34,6 +35,25 @@ module VagrantPlugins
             end
           else
             @env[:ui].info '...ssh-keys detected, skipping `ssh-add`'
+          end
+        end
+
+        # Copy over our git commit hooks
+        def setup_git_hooks
+          plugin_hooks_dir = File.expand_path File.join(File.dirname(__FILE__), '..', 'files', 'git_hooks')
+          git_hooks = Dir.entries(plugin_hooks_dir).select {|f| !File.directory? f}
+          if @ebcommon.git_hook_repos
+            @env[:ui].info 'Copying over git commit hooks...'
+          end
+
+          @ebcommon.git_hook_repos.each do |repo_path|
+            target_directory = File.join @ebcommon.git_hook_root_dir, repo_path, '.git', 'hooks'
+            if File.directory? target_directory
+              git_hooks.each do |hook|
+                source = File.join plugin_hooks_dir, hook
+                FileUtils.cp source, target_directory
+              end
+            end
           end
         end
 
@@ -139,6 +159,7 @@ module VagrantPlugins
           if provision_enabled
             ensure_vpn()
             setup_ssh_keys()
+            setup_git_hooks()
             generate_git_commiter_facts()
           end
           @app.call(env)

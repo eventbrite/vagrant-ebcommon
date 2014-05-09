@@ -2,13 +2,19 @@ module VagrantPlugins
   module Ebcommon
     class Config < Vagrant.plugin(2, :config)
       attr_accessor :vpn_urls
+      attr_accessor :git_hook_repos
+      attr_accessor :git_hook_root_dir
 
       def initialize
         @vpn_urls = UNSET_VALUE
+        @git_hook_repos = UNSET_VALUE
+        @git_hook_root_dir = UNSET_VALUE
       end
 
       def finalize!
         @vpn_urls = nil if @vpn_urls == UNSET_VALUE
+        @git_hook_repos = nil if @git_hook_repos == UNSET_VALUE
+        @git_hook_root_dir = nil if @git_hook_root_dir == UNSET_VALUE
       end
 
       def validate(machine)
@@ -24,6 +30,14 @@ module VagrantPlugins
               end
             }
           end
+        end
+        if @git_hook_repos
+          if not @git_hook_repos.kind_of?(Array)
+            errors << '`git_hook_repos` must be a list of paths to copy hooks to'
+          end
+        end
+        if @git_hook_repos and not @git_hook_root_dir
+          errors << '`git_hook_root_dir` must be set to the directory containing directories in `git_hook_repos`'
         end
         return { 'ebcommon' => errors }
       end

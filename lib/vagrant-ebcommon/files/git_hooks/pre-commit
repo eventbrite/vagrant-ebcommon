@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Our pre-commit hook for python repositories. This is distributed via our
+# vagrant plugin: https://github.com/eventbrite/vagrant-ebcommon.
+
+#
+# Opt out of git hook via:
+#  $ git config --global eventbrite.ignore-hook true
+#
+if [ "$(git config --get --bool 'eventbrite.ignore-hook')" = "true" ]
+then
+    exit 0
+fi
+
+# stashing in the middle of a merge or cherry-pick conflict removes the
+# reference to the fact that we're merging or cherry-picking. merges and
+# cherry-picks mean the commits have already been verified, so skip
+# verification here that can cause issues.
+if [ -f .git/MERGE_HEAD ]
+then
+    echo "merge detected, skipping pre_commit verification"
+    exit 0
+fi
+
+if [ -f .git/CHERRY_PICK_HEAD ]
+then
+    echo "cherry-pick detected, skipping pre_commit verification"
+    exit 0
+fi
+
+if [ -f .git/REVERT_HEAD ]
+then
+    echo "revert detected, skipping pre_commit verification"
+    exit 0
+fi
+
+GIT_STASH=`git stash --keep-index`
+NO_CHANGES="No local changes to save"
+
+PYTHON_PRE_COMMIT_HOOK=.git/hooks/pre_commit_hook.py
+FILES=`git diff --cached --name-only | xargs`
+python $PYTHON_PRE_COMMIT_HOOK $FILES
+exit_value=$?
+
+if [ "$GIT_STASH" != "$NO_CHANGES" ]
+then
+    git stash pop -q
+fi
+exit $exit_value
