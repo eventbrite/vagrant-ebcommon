@@ -50,6 +50,7 @@ module VagrantPlugins
             target_directory = File.join @ebcommon.git_hook_root_dir, repo_path, '.git', 'hooks'
             if File.directory? target_directory
               git_hooks.each do |hook|
+                @env[:ui].success "Copying over git hook: #{hook} to #{target_directory}"
                 source = File.join plugin_hooks_dir, hook
                 FileUtils.cp source, target_directory
               end
