@@ -63,13 +63,13 @@ module VagrantPlugins
         # internally and everything will fail miserably if you're not on our
         # network.
         def ensure_vpn
-          if not ENV['FORCE_PROVISION'] and @ebcommon.vpn_urls
+          if !ENV['FORCE_PROVISION'] && @ebcommon.vpn_urls
             vpn_valid = false
             @ebcommon.vpn_urls.each { |url|
-              vpn_valid = ping url
+              vpn_valid = test_url_timeout url, @ebcommon.vpn_timeout
               break if vpn_valid
             }
-            if not vpn_valid
+            if !vpn_valid
               raise Ebcommon::Errors::VPNRequired.new
             end
             @env[:ui].success 'VPN connection verified, continuing provision.'
@@ -93,7 +93,7 @@ module VagrantPlugins
               end
             end
           end
-          if not contents.empty?
+          if !contents.empty?
             creds = JSON.parse contents
           end
           return creds
@@ -139,7 +139,7 @@ module VagrantPlugins
             email = @env[:ui].ask 'Enter your eventbrite email: '
             write_git_commiter_details(full_name, email)
           end
-          if not full_name.empty? or not email.empty?
+          if !full_name.empty? || !email.empty?
             @env[:ui].success "Will setup global github details in vagrant."\
               " Full Name: #{full_name}, Email: #{email}"
           end
@@ -168,10 +168,11 @@ module VagrantPlugins
 
         private
 
-          def ping(url)
+          # Test that a URL is responding something given a timeout in seconds.
+          def test_url_timeout(url, timeout)
             uri = URI(url)
             begin
-              timeout(1) do
+              timeout(timeout) do
                 s = TCPSocket.new(uri.host, uri.port)
                 s.close
               end
