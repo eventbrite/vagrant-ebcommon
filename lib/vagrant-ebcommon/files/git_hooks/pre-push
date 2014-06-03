@@ -44,7 +44,7 @@ push_command=$(ps -ocommand= -p $PPID)
 
 is_destructive='\-\-force|\-\-delete| \-f'
 
-will_remove_protected_branch=':'$protected_branch
+will_remove_protected_branch=' :'$protected_branch
 
 do_exit(){
   echo $policy
