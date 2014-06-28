@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+#
+#
+#
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Get all files separated by a space
+FILES=$(git diff --name-only HEAD HEAD~1 | tee | tr '\n' ' ')
+
+
+# Pass all the affected files to our Ruby script
+$DIR/yaml-parser.rb $FILES
+exit 0
