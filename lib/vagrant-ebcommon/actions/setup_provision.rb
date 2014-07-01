@@ -13,7 +13,13 @@ module VagrantPlugins
           @ebcommon = env[:machine].config.ebcommon
           @puppet_fact_generator = @env[:machine].config.puppet_fact_generator
 
-          provisioner = @env[:machine].config.vm.provisioners[0]
+          provisioner = nil
+          @env[:machine].config.vm.provisioners.each do |p|
+            if p.name == :puppet
+              provisioner = p
+              break
+            end
+          end
           @puppet_config = provisioner ? provisioner.config: nil
           @vagrant_git_commiter_details = @env[:machine].env.local_data_path.join(
             'git_commit_details'

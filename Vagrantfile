@@ -15,6 +15,10 @@ Vagrant.configure('2') do |config|
     'vagrant-ebcommon',
   ]
 
+  config.vm.provision 'shell' do |s|
+    s.inline = 'sudo /opt/vagrant_ruby/bin/gem install puppet --no-ri --no-rdoc --version=3.5.1'
+  end
+
   config.vm.provision 'puppet' do |puppet|
     puppet.manifests_path = 'manifests'
     puppet.manifest_file = 'init.pp'
