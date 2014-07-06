@@ -16,7 +16,7 @@ module VagrantPlugins
         raise Vagrant::Errors::CLIInvalidUsage, :help => opts.help.chomp if argv.length > 0
 
         system "kill $(ps aux | grep '[s]elenium-server.jar' | awk '{print $2}') > /dev/null 2>&1"
-        system "java -jar ../../../src/www/eventbrite/common/automation/webdriver/server/#{selserverjar} -trustAllSSLCertificates > /dev/null 2>&1 &"
+        system "java -jar ../../src/www/eventbrite/common/automation/webdriver/server/#{selserverjar} -trustAllSSLCertificates > /dev/null 2>&1 &"
         @env.ui.success 'Selenium server started!'
       end
 
