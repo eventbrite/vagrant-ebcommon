@@ -1,12 +1,18 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 #
+# For the eventbrite core repository only, check to see which acceptance tests are effected by a given commit.
 #
-#
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-# Get all files separated by a space
-FILES=$(git diff --name-only HEAD HEAD~1 | tee | tr '\n' ' ')
+REMOTE_URL="`git config --get remote.origin.url`"
+REPO_NAME="`basename $REMOTE_URL`"
+
+if [ "$REPO_NAME" = "core.git" ]
+then
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    # Get all files separated by a space
+    FILES=$(git diff --name-only HEAD HEAD~1 | tee | tr '\n' ' ')
 
 
-# Pass all the affected files to our Ruby script
-$DIR/yaml-parser.rb $FILES
+    # Pass all the affected files to our Ruby script
+    $DIR/yaml-parser.rb $FILES
+fi
 exit 0
