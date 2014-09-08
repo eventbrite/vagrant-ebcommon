@@ -14,7 +14,7 @@ end
 if !ARGV[0].empty?
     # Collect all the tests from the YAML
     tests = ARGV.map{ | file | data[file] }.compact()
-    if tests[0].length < 50
+    if !tests[0].nil? and tests[0].length < 50
         puts "The following acceptance tests are affected by your changes\n"
         tests[0].each do | test |
             puts "- #{test}"
