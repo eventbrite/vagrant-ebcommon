@@ -48,6 +48,7 @@ module VagrantPlugins
         def setup_git_hooks
           if @ebcommon.git_hook_repos
             plugin_hooks_dir = File.expand_path File.join(File.dirname(__FILE__), '..', 'files', 'git_hooks')
+            FileUtils.mkdir(plugin_hooks_dir) unless File.directory?(plugin_hooks_dir)
             git_hooks = Dir.entries(plugin_hooks_dir).select {|f| !File.directory? f}
             @env[:ui].info 'Copying over git commit hooks...'
 
