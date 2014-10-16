@@ -46,22 +46,31 @@ module VagrantPlugins
 
         # Copy over our git commit hooks
         def setup_git_hooks
-          if @ebcommon.git_hook_repos
-            plugin_hooks_dir = File.expand_path File.join(File.dirname(__FILE__), '..', 'files', 'git_hooks')
-            git_hooks = Dir.entries(plugin_hooks_dir).select {|f| !File.directory? f}
-            @env[:ui].info 'Copying over git commit hooks...'
+          # repos to be hook'ed
+          return unless @ebcommon.git_hook_repos
 
-            @ebcommon.git_hook_repos.each do |repo_path|
-              target_hooks_dir = File.join @ebcommon.git_hook_root_dir, repo_path, '.git', 'hooks'
-              if not File.directory? target_hooks_dir
-                @env[:ui].info "Creating #{target_hooks_dir} directory..."
-                FileUtils.mkdir target_hooks_dir
-              end
-              git_hooks.each do |hook|
-                @env[:ui].success "Copying over git hook: #{hook} to #{target_hooks_dir}"
-                source = File.join plugin_hooks_dir, hook
-                FileUtils.cp source, target_hooks_dir
-              end
+          # source
+          plugin_hooks_dir = File.expand_path File.join(File.dirname(__FILE__), '..', 'files', 'git_hooks')
+          git_hooks = Dir.entries(plugin_hooks_dir).select {|f| !File.directory? f}
+
+          @env[:ui].info 'Copying over git commit hooks...'
+          @ebcommon.git_hook_repos.each do |repo_path|
+            # repo
+            repo_dir = File.join @ebcommon.git_hook_root_dir, repo_path, '.git'
+            next unless File.directory? repo_dir
+
+            # create repo hooks dir if needed
+            target_hooks_dir = File.join repo_dir, 'hooks'
+            unless File.directory? target_hooks_dir
+              @env[:ui].info "Creating #{target_hooks_dir} directory..."
+              FileUtils.mkdir target_hooks_dir
+            end
+
+            # copy source hooks to repo
+            git_hooks.each do |hook|
+              @env[:ui].success "Copying over git hook: #{hook} to #{target_hooks_dir}"
+              source = File.join plugin_hooks_dir, hook
+              FileUtils.cp source, target_hooks_dir
             end
           end
         end
