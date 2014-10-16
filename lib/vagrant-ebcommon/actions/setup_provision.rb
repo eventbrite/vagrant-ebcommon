@@ -48,18 +48,19 @@ module VagrantPlugins
         def setup_git_hooks
           if @ebcommon.git_hook_repos
             plugin_hooks_dir = File.expand_path File.join(File.dirname(__FILE__), '..', 'files', 'git_hooks')
-            FileUtils.mkdir(plugin_hooks_dir) unless File.directory?(plugin_hooks_dir)
             git_hooks = Dir.entries(plugin_hooks_dir).select {|f| !File.directory? f}
             @env[:ui].info 'Copying over git commit hooks...'
 
             @ebcommon.git_hook_repos.each do |repo_path|
-              target_directory = File.join @ebcommon.git_hook_root_dir, repo_path, '.git', 'hooks'
-              if File.directory? target_directory
-                git_hooks.each do |hook|
-                  @env[:ui].success "Copying over git hook: #{hook} to #{target_directory}"
-                  source = File.join plugin_hooks_dir, hook
-                  FileUtils.cp source, target_directory
-                end
+              target_hooks_dir = File.join @ebcommon.git_hook_root_dir, repo_path, '.git', 'hooks'
+              if not File.directory? target_hooks_dir
+                @env[:ui].info "Creating #{target_hooks_dir} directory..."
+                FileUtils.mkdir target_hooks_dir
+              end
+              git_hooks.each do |hook|
+                @env[:ui].success "Copying over git hook: #{hook} to #{target_hooks_dir}"
+                source = File.join plugin_hooks_dir, hook
+                FileUtils.cp source, target_hooks_dir
               end
             end
           end
