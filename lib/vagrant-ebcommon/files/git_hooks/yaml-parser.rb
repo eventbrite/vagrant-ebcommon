@@ -13,14 +13,14 @@ end
 # Print out all the relavant tests, or all if there's a lot.
 if !ARGV[0].empty?
     # Collect all the tests from the YAML
-    tests = ARGV.map{ | file | data[file] }.compact()
-    if tests[0].nil?
+    tests = ARGV.map{ |file| data[file] }.compact()
+    if tests.any? && tests[0].nil?
         # No tests to run, simply exit.
         exit 0
     elsif tests[0].length < 50
         puts "The following acceptance tests are affected by your changes\n"
-        tests[0].each do | test |
-            puts "- #{test}"
+        tests[0].each do |t|
+            puts "- #{t}"
         end
     else
         puts "Your changes affect almost everything. I suggest you run all tests in Sauce"
@@ -30,5 +30,3 @@ else
     puts "Error: Nothing was passed to this script"
     exit 1
 end
-
-

@@ -13,6 +13,6 @@ then
 
 
     # Pass all the affected files to our Ruby script
-    $DIR/yaml-parser.rb $FILES
+    ruby $DIR/yaml-parser.rb $FILES
 fi
 exit 0
