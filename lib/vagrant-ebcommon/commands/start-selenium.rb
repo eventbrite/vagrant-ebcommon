@@ -4,7 +4,7 @@ module VagrantPlugins
 
       def execute
 
-        selserverjar = 'selenium-server-standalone-2.41.0.jar'
+        selserverjar = 'selenium-server-standalone-2.43.0.jar'
 
         opts = OptionParser.new do |o|
           o.banner = 'Usage: vagrant start-selenium [-h]'
